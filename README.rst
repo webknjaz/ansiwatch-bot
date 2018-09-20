@@ -11,6 +11,13 @@ Creating an openshift app
     oc new-project ansiwatch-bot
     oc new-app --env-file=.env openshift.yaml
 
+Triggering build
+================
+
+.. code:: bash
+
+    oc start-build ansiwatch-bot
+
 Checking status
 ===============
 
