@@ -16,11 +16,11 @@ Checking status
 
 .. code:: bash
 
-    oc logs -f bc/ansiwatch-deployment
+    oc logs -f bc/ansiwatch-bot
 
 Destroying everything back
 ==========================
 
 .. code:: bash
 
-    oc delete all -l app=ansiwatch-deployment; oc delete secret ansiwatch-deployment
+    oc delete all -l app=ansiwatch-bot; oc delete secret ansiwatch-bot
