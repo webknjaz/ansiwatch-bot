@@ -177,7 +177,8 @@ parameters:
   displayName: Version of Python Image
   name: PYTHON_VERSION
   required: true
-  value: '3.7'
+  # value: '3.7'
+  value: '3.6'
 - description: Maximum amount of memory the container can use.
   displayName: Memory Limit
   name: MEMORY_LIMIT
