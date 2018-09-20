@@ -18,6 +18,13 @@ Triggering build
 
     oc start-build ansiwatch-bot
 
+Triggering deployment
+=====================
+
+.. code:: bash
+
+    oc rollout latest ansiwatch-bot
+
 Checking status
 ===============
 
