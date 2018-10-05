@@ -29,7 +29,7 @@ objects:
   metadata:
     name: ${NAME}
   stringData:
-    secret-key: ${DJANGO_SECRET_KEY}
+    secret-key: ${SECRET_KEY}
 - apiVersion: v1
   kind: Service
   metadata:
@@ -130,7 +130,7 @@ objects:
             value: ${GITHUB_OAUTH_CLIENT_SECRET}
           - name: APP_CONFIG
             value: ${APP_CONFIG}
-          - name: DJANGO_SECRET_KEY
+          - name: SECRET_KEY
             valueFrom:
               secretKeyRef:
                 key: secret-key
@@ -228,7 +228,7 @@ parameters:
   displayName: Django Secret Key
   from: '[\w]{50}'
   generate: expression
-  name: DJANGO_SECRET_KEY
+  name: SECRET_KEY
 - description: The custom PyPi index URL
   displayName: Custom PyPi Index URL
   name: PIP_INDEX_URL
