@@ -94,6 +94,9 @@ objects:
     - github:
         secret: ${GITHUB_WEBHOOK_SECRET}
       type: GitHub
+    - generic:
+        secret: ${GENERIC_WEBHOOK_SECRET}
+      type: Generic
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -213,6 +216,11 @@ parameters:
   from: '[a-zA-Z0-9]{40}'
   generate: expression
   name: GITHUB_WEBHOOK_SECRET
+- description: A secret string used to configure the Generic webhook.
+  displayName: Generic Webhook Secret
+  from: '[a-zA-Z0-9]{40}'
+  generate: expression
+  name: GENERIC_WEBHOOK_SECRET
 - description: Relative path to Gunicorn configuration file (optional).
   displayName: Application Configuration File Path
   name: APP_CONFIG
