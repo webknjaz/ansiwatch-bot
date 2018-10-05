@@ -4,12 +4,16 @@ labels:
   app: ansiwatch-bot
   template: ansiwatch-bot
 message: >
-  The following service(s) have been created in your project: ${NAME}.
+  The following service(s) have been created in your project: ${NAME}, ${DATABASE_SERVICE_NAME}.
+
+
+  For more information about using this template, including OpenShift considerations,
+  see https://github.com/sclorg/django-ex/blob/master/README.md.
 metadata:
   annotations:
-    description: A bot (GitHub App) for doing deployment
+    description: A bot (GitHub App) for running ansible-lint
     iconClass: icon-python
-    openshift.io/display-name: Ansible linter bot integration
+    openshift.io/display-name: Ansible linter bot integration (Python + PostgreSQL)
     openshift.io/documentation-url: >
       https://github.com/webknjaz/ansiwatch-bot
     openshift.io/long-description: >
@@ -29,12 +33,16 @@ objects:
   metadata:
     name: ${NAME}
   stringData:
+    database-password: ${DATABASE_PASSWORD}
+    database-user: ${DATABASE_USER}
     secret-key: ${SECRET_KEY}
 - apiVersion: v1
   kind: Service
   metadata:
     annotations:
       description: Exposes and load balances the application pods
+      service.alpha.openshift.io/dependencies: >
+        [{"name": "${DATABASE_SERVICE_NAME}", "kind": "Service"}]
     name: ${NAME}
   spec:
     ports:
@@ -108,11 +116,13 @@ objects:
     replicas: 1
     selector:
       name: ${NAME}
+    # docs.openshift.com/container-platform/3.10/dev_guide/deployments/deployment_strategies.html
     strategy:
-      type: Rolling
+      #type: Rolling
+      type: Recreate
     template:
       metadata:
-        labels: 
+        labels:
           name: ${NAME}
         name: ${NAME}
       spec:
@@ -128,17 +138,34 @@ objects:
             value: ${GITHUB_OAUTH_CLIENT_ID}
           - name: GITHUB_OAUTH_CLIENT_SECRET
             value: ${GITHUB_OAUTH_CLIENT_SECRET}
+          - name: DATABASE_SERVICE_NAME
+            value: ${DATABASE_SERVICE_NAME}
+          - name: DATABASE_ENGINE
+            value: ${DATABASE_ENGINE}
+          - name: DATABASE_NAME
+            value: ${DATABASE_NAME}
+          - name: DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: ${NAME}
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: ${NAME}
           - name: APP_CONFIG
             value: ${APP_CONFIG}
           - name: SECRET_KEY
             valueFrom:
               secretKeyRef:
                 key: secret-key
-                name: '${NAME}'
+                name: ${NAME}
           image: ' '
           livenessProbe:
             httpGet:
-              path: /
+              #path: /
+              path: /health
               port: 8080
             initialDelaySeconds: 30
             timeoutSeconds: 3
@@ -147,7 +174,8 @@ objects:
           - containerPort: 8080
           readinessProbe:
             httpGet:
-              path: /
+              #path: /
+              path: /health
               port: 8080
             initialDelaySeconds: 3
             timeoutSeconds: 3
@@ -164,6 +192,100 @@ objects:
           name: ${NAME}:latest
       type: ImageChange
     - type: ConfigChange
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: ${DATABASE_SERVICE_NAME}
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${VOLUME_CAPACITY}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Exposes the database server
+    name: ${DATABASE_SERVICE_NAME}
+  spec:
+    ports:
+    - name: postgresql
+      port: 5432
+      targetPort: 5432
+    selector:
+      name: ${DATABASE_SERVICE_NAME}
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: Defines how to deploy the database
+      template.alpha.openshift.io/wait-for-ready: 'true'
+    name: ${DATABASE_SERVICE_NAME}
+  spec:
+    replicas: 1
+    selector:
+      name: ${DATABASE_SERVICE_NAME}
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          name: ${DATABASE_SERVICE_NAME}
+        name: ${DATABASE_SERVICE_NAME}
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: ${NAME}
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: ${NAME}
+          - name: POSTGRESQL_DATABASE
+            value: ${DATABASE_NAME}
+          image: ' '
+          livenessProbe:
+            exec:
+              command:
+              - /usr/libexec/check-container
+              - --live
+            initialDelaySeconds: 120
+            timeoutSeconds: 10
+          name: postgresql
+          ports:
+          - containerPort: 5432
+          readinessProbe:
+            exec:
+              command:
+              - /usr/libexec/check-container
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: ${MEMORY_POSTGRESQL_LIMIT}
+          volumeMounts:
+          - mountPath: /var/lib/pgsql/data
+            name: ${DATABASE_SERVICE_NAME}-data
+        volumes:
+        - name: ${DATABASE_SERVICE_NAME}-data
+          persistentVolumeClaim:
+            claimName: ${DATABASE_SERVICE_NAME}
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - postgresql
+        from:
+          kind: ImageStreamTag
+          name: postgresql:${POSTGRESQL_VERSION}
+          namespace: ${NAMESPACE}
+      type: ImageChange
+    - type: ConfigChange
 parameters:
 - description: The name assigned to all of the frontend objects defined in this template.
   displayName: Name
@@ -176,17 +298,32 @@ parameters:
   required: true
   value: openshift
 - description: >
-    Version of Python image to be used (3.4, 3.5, 3.6, 3.7 or latest).
+    Version of Python image to be used (3.4, 3.5, 3.6 or latest).
   displayName: Version of Python Image
   name: PYTHON_VERSION
   required: true
   # value: '3.7'
   value: '3.6'
+- description: Version of PostgreSQL image to be used (9.4, 9.5, 9.6 or latest).
+  displayName: Version of PostgreSQL Image
+  name: POSTGRESQL_VERSION
+  required: true
+  value: '9.6'
 - description: Maximum amount of memory the container can use.
   displayName: Memory Limit
   name: MEMORY_LIMIT
   required: true
   value: 512Mi
+- description: Maximum amount of memory the PostgreSQL container can use.
+  displayName: Memory Limit (PostgreSQL)
+  name: MEMORY_POSTGRESQL_LIMIT
+  required: true
+  value: 512Mi
+- description: Volume space available for data, e.g. 512Mi, 2Gi
+  displayName: Volume Capacity
+  name: VOLUME_CAPACITY
+  required: true
+  value: 1Gi
 - description: >
     The URL of the repository with your application source code
   displayName: Git Repository URL
@@ -221,6 +358,27 @@ parameters:
   from: '[a-zA-Z0-9]{40}'
   generate: expression
   name: GENERIC_WEBHOOK_SECRET
+- displayName: Database Service Name
+  name: DATABASE_SERVICE_NAME
+  required: true
+  value: postgresql
+- description: Database engine: postgresql, mysql or sqlite (default).
+  displayName: Database Engine
+  name: DATABASE_ENGINE
+  required: true
+  value: postgresql
+- displayName: Database Name
+  name: DATABASE_NAME
+  required: true
+  value: default
+- displayName: Database Username
+  name: DATABASE_USER
+  required: true
+  value: django
+- displayName: Database User Password
+  from: '[a-zA-Z0-9]{16}'
+  generate: expression
+  name: DATABASE_PASSWORD
 - description: Relative path to Gunicorn configuration file (optional).
   displayName: Application Configuration File Path
   name: APP_CONFIG
