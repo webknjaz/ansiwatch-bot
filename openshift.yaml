@@ -362,7 +362,7 @@ parameters:
   name: DATABASE_SERVICE_NAME
   required: true
   value: postgresql
-- description: Database engine: postgresql, mysql or sqlite (default).
+- description: 'Database engine: postgresql, mysql or sqlite (default).'
   displayName: Database Engine
   name: DATABASE_ENGINE
   required: true
@@ -374,7 +374,7 @@ parameters:
 - displayName: Database Username
   name: DATABASE_USER
   required: true
-  value: django
+  value: ansiwatch-bot
 - displayName: Database User Password
   from: '[a-zA-Z0-9]{16}'
   generate: expression
