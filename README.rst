@@ -9,7 +9,7 @@ Creating an openshift app
 .. code:: bash
 
     oc new-project ansiwatch-bot
-    oc new-app --env-file=.env openshift.yaml
+    oc new-app --param-file=.env openshift.yaml
 
 Triggering build
 ================

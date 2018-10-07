@@ -403,4 +403,28 @@ parameters:
   displayName: Custom PyPi Index URL
   name: PIP_INDEX_URL
   value: ''
+- description: The App ID copied from GitHub App settings page
+  displayName: App ID copied from GitHub App settings page
+  name: GITHUB_APP_ID
+  required: true
+- description: >
+    The Installation ID identifying GitHub App installed in user or
+    organization scope
+  displayName: >
+    Installation ID identifying GitHub App installed in user or
+    organization scope
+  name: GITHUB_INSTALL_ID
+- description: The private key downloaded from GitHub App settings page
+  displayName: Private key downloaded from GitHub App settings page
+  name: GITHUB_PRIVATE_KEY
+  required: true
+- description: The OAuth Client ID copied from GitHub App settings page
+  displayName: OAuth Client ID copied from GitHub App settings page
+  name: GITHUB_OAUTH_CLIENT_ID
+  required: true
+- description: >
+    The OAuth Client secret copied from GitHub App settings page
+  displayName: OAuth Client secret copied from GitHub App settings page
+  name: GITHUB_OAUTH_CLIENT_SECRET
+  required: true
 
