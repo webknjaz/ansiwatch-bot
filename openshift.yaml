@@ -36,6 +36,9 @@ objects:
     database-password: ${DATABASE_PASSWORD}
     database-user: ${DATABASE_USER}
     secret-key: ${SECRET_KEY}
+    github-app-private-key: ${GITHUB_PRIVATE_KEY}
+    github-oauth-client-id: ${GITHUB_OAUTH_CLIENT_ID}
+    github-oauth-client-secret: ${GITHUB_OAUTH_CLIENT_SECRET}
 - apiVersion: v1
   kind: Service
   metadata:
@@ -133,11 +136,20 @@ objects:
           - name: GITHUB_INSTALL_ID
             value: ${GITHUB_INSTALL_ID}
           - name: GITHUB_PRIVATE_KEY
-            value: ${GITHUB_PRIVATE_KEY}
+            valueFrom:
+              secretKeyRef:
+                key: github-app-private-key
+                name: ${NAME}
           - name: GITHUB_OAUTH_CLIENT_ID
-            value: ${GITHUB_OAUTH_CLIENT_ID}
+            valueFrom:
+              secretKeyRef:
+                key: github-oauth-client-id
+                name: ${NAME}
           - name: GITHUB_OAUTH_CLIENT_SECRET
-            value: ${GITHUB_OAUTH_CLIENT_SECRET}
+            valueFrom:
+              secretKeyRef:
+                key: github-oauth-client-secret
+                name: ${NAME}
           - name: DATABASE_SERVICE_NAME
             value: ${DATABASE_SERVICE_NAME}
           - name: DATABASE_ENGINE
