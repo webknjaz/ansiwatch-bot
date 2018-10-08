@@ -94,8 +94,6 @@ objects:
         env:
         - name: PIP_INDEX_URL
           value: ${PIP_INDEX_URL}
-        - name: APP_MODULE
-          value: ${APP_MODULE}
         from:
           kind: ImageStreamTag
           name: python:${PYTHON_VERSION}
@@ -133,6 +131,8 @@ objects:
       spec:
         containers:
         - env:
+          - name: APP_MODULE
+            value: ${APP_MODULE}
           - name: GITHUB_APP_ID
             value: ${GITHUB_APP_ID}
           - name: GITHUB_INSTALL_ID
