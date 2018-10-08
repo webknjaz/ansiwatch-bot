@@ -1,3 +1,4 @@
 #! /usr/bin/env bash
 
-python -m "$APP_MODULE"
+echo "Port: $PORT"
+exec python -m "$APP_MODULE"
