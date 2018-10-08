@@ -1,0 +1,4 @@
+CherryPy==18.0.0
+envparse
+pygithub[integrations]
+requests==2.19.1
