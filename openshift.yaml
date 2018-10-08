@@ -94,6 +94,8 @@ objects:
         env:
         - name: PIP_INDEX_URL
           value: ${PIP_INDEX_URL}
+        - name: APP_MODULE
+          value: ${APP_MODULE}
         from:
           kind: ImageStreamTag
           name: python:${PYTHON_VERSION}
@@ -427,4 +429,9 @@ parameters:
   displayName: OAuth Client secret copied from GitHub App settings page
   name: GITHUB_OAUTH_CLIENT_SECRET
   required: true
+- description: The path to the WSGI application importable
+  displayName: Path to the WSGI application importable
+  name: APP_MODULE
+  required: true
+  value: ansiwatch_bot
 
