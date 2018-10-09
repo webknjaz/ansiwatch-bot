@@ -5,7 +5,10 @@ from .wsgi import application
 
 
 def main():
-    cherrypy.tree.graft(application, '/')
+    cherrypy.tree.mount(application, '/', {})
+
+    cherrypy.engine.start()
+    cherrypy.engine.block()
 
 
 __name__ == '__main__' and main()
