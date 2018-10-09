@@ -1,7 +1,7 @@
 import cherrypy
 
 from .apps.health import HealthApp
-from .web import RootBotApp
+from .apps.root import RootBotApp
 
 
 application = cherrypy.Application(RootBotApp(), '/', {})
