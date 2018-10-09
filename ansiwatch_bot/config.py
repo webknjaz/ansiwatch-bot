@@ -12,6 +12,7 @@ def get_root_config():
             '/':
                 {
                     'request.dispatch': GithubEventDispatcher(),
+                    'tools.sessions.on': False,
                 },
          }
 
