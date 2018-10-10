@@ -52,7 +52,7 @@ class GitHubEventHandlerApp:
 
         return action_msg
 
-    @cherrypy.expose
+    @cherrypy.expose('integration_installation')
     def installation(self, action, installation, repositories, sender):
         installation_id = installation['id']
 
@@ -65,7 +65,7 @@ class GitHubEventHandlerApp:
 
         return action_msg
 
-    @cherrypy.expose
+    @cherrypy.expose('integration_installation_repositories')
     def installation_repositories(
         self, action, installation,
         repositories_added, repositories_removed,
@@ -81,6 +81,7 @@ class GitHubEventHandlerApp:
         bus_log(action_msg, logging.INFO)
 
         return action_msg
+
 
     @cherrypy.expose
     def ping(self, hook, hook_id, zen):
