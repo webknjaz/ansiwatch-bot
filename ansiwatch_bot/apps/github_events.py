@@ -23,15 +23,15 @@ class GitHubEventHandlerApp:
             event_data['requested_action']['identifier']
         )
 
-        action_msg = map(str, [
-            'Processing check run action ', action,
-            ' with name ', check_run_name,
-            ' with conclusion ', check_run_conclusion,
-            ' from check suite id ', check_suite_id,
-            ' and requested action identifier is ',
+        action_msg = ' '.join(map(str, [
+            'Processing check run action', action,
+            'with name', check_run_name,
+            'with conclusion', check_run_conclusion,
+            'from check suite id', check_suite_id,
+            'and requested action identifier is',
             requested_action_identifier,
-        ])
-        bus_log(action_msg)
+        ]))
+        bus_log(action_msg, logging.INFO)
 
         return action_msg
 
@@ -47,16 +47,16 @@ class GitHubEventHandlerApp:
         check_suite_url = check_suite['url']
         check_suite_pull_requests = check_suite['pull_requests']
 
-        action_msg = map(str, [
-            'Processing check suite action ', action,
-            ' with head branch ', check_suite_head_branch,
-            ' with head sha ', check_suite_head_sha,
-            ' with status ', check_suite_status,
-            ' with conclusion ', check_suite_conclusion,
-            ' with URL ', check_suite_url,
-            ' with PRs ', check_suite_pull_requests,
-        ])
-        bus_log(action_msg)
+        action_msg = ' '.join(map(str, [
+            'Processing check suite action', action,
+            'with head branch', check_suite_head_branch,
+            'with head sha', check_suite_head_sha,
+            'with status', check_suite_status,
+            'with conclusion', check_suite_conclusion,
+            'with URL', check_suite_url,
+            'with PRs', check_suite_pull_requests,
+        ]))
+        bus_log(action_msg, logging.INFO)
 
         return action_msg
 
