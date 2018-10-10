@@ -58,8 +58,8 @@ class GitHubEventHandlerApp:
 
         action_msg = ' '.join(map(str, [
             'Processing installation action', action,
-            'with ID ', installation_id,
-            'by ', sender['login'],
+            'with ID', installation_id,
+            'by', sender['login'],
         ]))
         bus_log(action_msg, logging.INFO)
 
@@ -75,8 +75,8 @@ class GitHubEventHandlerApp:
 
         action_msg = ' '.join(map(str, [
             'Processing installation repositories action', action,
-            'with ID ', installation_id,
-            'by ', sender['login'],
+            'with ID', installation_id,
+            'by', sender['login'],
         ]))
         bus_log(action_msg, logging.INFO)
 
