@@ -61,6 +61,36 @@ class GitHubEventHandlerApp:
         return action_msg
 
     @cherrypy.expose
+    def installation(self):
+        event_data = get_request_json()
+        action = event_data['action']
+        installation = event_data['installation']
+        installation_id = installation['id']
+        repositories = event_data['repositories']
+        sender = event_data['sender']
+
+        action_msg = ' '.join(map(str, [
+            'Processing installation action', action,
+            'with ID ', installation_id,
+            'by ', sender['login'],
+        ]))
+        bus_log(action_msg, logging.INFO)
+
+        return action_msg
+
+    @cherrypy.expose
+    def installation_repositories(self):
+        event_data = get_request_json()
+        action = event_data['action']
+        installation = event_data['installation']
+        repository_selection = event_data['repository_selection']
+        repositories_added = event_data['repositories_added']
+        repositories_removed = event_data['repositories_removed']
+        sender = event_data['sender']
+
+        return 'Got installation_repositories event'
+
+    @cherrypy.expose
     def ping(self):
         event_data = get_request_json()
         app_id = event_data['hook']['app_id']
