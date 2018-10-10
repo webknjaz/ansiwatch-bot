@@ -12,7 +12,8 @@ class GithubEventDispatcher(cherrypy.dispatch.Dispatcher):
         gh_event = header('X-GitHub-Event')
 
         if not gh_event:
-            return super().__call__(path_info)
+            super().__call__(path_info)
+            return
 
         gh_delivery = header('X-GitHub-Delivery')
         cherrypy.request.github_event = gh_event
@@ -23,4 +24,4 @@ class GithubEventDispatcher(cherrypy.dispatch.Dispatcher):
         bus_log(f'X-GitHub-Event: {gh_event}', logging.INFO)
         bus_log(f'X-GitHub-Delivery: {gh_delivery}', logging.INFO)
 
-        return super().__call__(new_path_info)
+        super().__call__(new_path_info)
