@@ -2,25 +2,20 @@ import logging
 
 import cherrypy
 
+from .. import tools
 from ..utils import bus_log
 
 
-def get_request_json():
-    return cherrypy.request.json
-
-
 @cherrypy.tools.json_in()
+@cherrypy.tools.json_to_args()
 class GitHubEventHandlerApp:
     @cherrypy.expose
-    def check_run(self):
-        event_data = get_request_json()
-        action = event_data['action']
-        check_run = event_data['check_run']
+    def check_run(self, action, check_run, requested_action):
         check_run_conclusion = check_run['conclusion']
         check_run_name = check_run['name']
         check_suite_id = check_run['check_suite']['id']
         requested_action_identifier = (
-            event_data['requested_action']['identifier']
+            requested_action['identifier']
         )
 
         action_msg = ' '.join(map(str, [
@@ -36,10 +31,7 @@ class GitHubEventHandlerApp:
         return action_msg
 
     @cherrypy.expose
-    def check_suite(self):
-        event_data = get_request_json()
-        action = event_data['action']
-        check_suite = event_data['check_suite']
+    def check_suite(self, action, check_suite):
         check_suite_head_branch = check_suite['head_branch']
         check_suite_head_sha = check_suite['head_sha']
         check_suite_status = check_suite['status']
@@ -61,13 +53,8 @@ class GitHubEventHandlerApp:
         return action_msg
 
     @cherrypy.expose
-    def installation(self):
-        event_data = get_request_json()
-        action = event_data['action']
-        installation = event_data['installation']
+    def installation(self, action, installation, repositories, sender):
         installation_id = installation['id']
-        repositories = event_data['repositories']
-        sender = event_data['sender']
 
         action_msg = ' '.join(map(str, [
             'Processing installation action', action,
@@ -79,15 +66,12 @@ class GitHubEventHandlerApp:
         return action_msg
 
     @cherrypy.expose
-    def installation_repositories(self):
-        event_data = get_request_json()
-        action = event_data['action']
-        installation = event_data['installation']
+    def installation_repositories(
+        self, action, installation,
+        repositories_added, repositories_removed,
+        repository_selection, sender,
+    ):
         installation_id = installation['id']
-        repository_selection = event_data['repository_selection']
-        repositories_added = event_data['repositories_added']
-        repositories_removed = event_data['repositories_removed']
-        sender = event_data['sender']
 
         action_msg = ' '.join(map(str, [
             'Processing installation repositories action', action,
@@ -99,10 +83,8 @@ class GitHubEventHandlerApp:
         return action_msg
 
     @cherrypy.expose
-    def ping(self):
-        event_data = get_request_json()
-        app_id = event_data['hook']['app_id']
-        zen = event_data['zen']
+    def ping(self, hook, zen):
+        app_id = hook['app_id']
         bus_log(f'App ID: {app_id}', logging.INFO)
         bus_log(f'Zen: {zen}', logging.INFO)
         return zen
