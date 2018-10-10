@@ -83,9 +83,15 @@ class GitHubEventHandlerApp:
         return action_msg
 
     @cherrypy.expose
-    def ping(self, hook, zen):
+    def ping(self, hook, hook_id, zen):
         app_id = hook['app_id']
-        bus_log(f'App ID: {app_id}', logging.INFO)
-        bus_log(f'Zen: {zen}', logging.INFO)
-        return zen
+
+        action_msg = ' '.join(map(str, [
+            'Processing ping for App ID', app_id,
+            'with ID', hook_id,
+            'sharing Zen', zen,
+        ]))
+
+        bus_log(action_msg, logging.INFO)
+        return action_msg
         # raise cherrypy.HTTPError(204, zen)
