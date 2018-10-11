@@ -88,7 +88,7 @@ class GitHubEventHandlerApp:
         ]))
         bus_log(action_msg, logging.INFO)
 
-        for repo in repositories_deleted:
+        for repo in repositories_removed:
             cherrypy.engine.publish('repo-wipe', repo=repo['full_name'])
 
         for repo in repositories_added:
