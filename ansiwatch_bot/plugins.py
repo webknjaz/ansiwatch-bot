@@ -54,6 +54,7 @@ class RepoSyncPlugin(SimplePlugin):
         self.bus.log('Stopping repo sync plugin')
         self.bus.unsubscribe('repo-sync', self.sync_repo)
         self.bus.unsubscribe('repo-wipe', self.wipe_repo)
+        self._cleanup()
 
     def sync_repo(self, repo):
         self.bus.log(f'Got asked to sync {repo}...')
@@ -86,7 +87,7 @@ class RepoSyncPlugin(SimplePlugin):
             return
 
         self.bus.log(f'Wiping {repo} out')
-        tmp_repo_path, mon = self.repo_monitors[repo]
+        tmp_repo_path, mon = self.repo_monitors.pop(repo)
 
         mon.stop()
         mon.unsubscribe()
@@ -97,6 +98,10 @@ class RepoSyncPlugin(SimplePlugin):
         del tmp_repo_path
 
         self.bus.log(f'{repo} has been cleaned up successfully')
+
+    def _cleanup(self):
+        for r in list(self.repo_monitors.keys()):
+            self.wipe_repo(r)
 
 
 def subscribe_all():
