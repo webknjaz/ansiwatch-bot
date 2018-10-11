@@ -54,6 +54,7 @@ class GitHubEventHandlerApp:
 
     @cherrypy.expose('integration_installation')
     def installation(self, action, installation, sender, repositories=None):
+        repositories = repositories or []
         installation_id = installation['id']
 
         action_msg = ' '.join(map(str, [
@@ -62,6 +63,13 @@ class GitHubEventHandlerApp:
             'by', sender['login'],
         ]))
         bus_log(action_msg, logging.INFO)
+
+        action_map = {
+            'created': 'repo-sync',
+            'deleted': 'repo-wipe',
+        }
+        for repo in repositories:
+            cherrypy.engine.publish(action_map[action], repo=repo)
 
         return action_msg
 
@@ -79,6 +87,12 @@ class GitHubEventHandlerApp:
             'by', sender['login'],
         ]))
         bus_log(action_msg, logging.INFO)
+
+        for repo in repositories_deleted:
+            cherrypy.engine.publish('repo-wipe', repo=repo)
+
+        for repo in repositories_added:
+            cherrypy.engine.publish('repo-sync', repo=repo)
 
         return action_msg
 
