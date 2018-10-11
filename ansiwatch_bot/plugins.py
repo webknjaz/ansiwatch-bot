@@ -63,7 +63,7 @@ class RepoSyncPlugin(SimplePlugin):
             return
 
         tmp_repo_path = TemporaryDirectory(
-            prefix='ansiwatch_bot-',  # suffix='-',
+            prefix=f'ansiwatch_bot--{repo.replace("/", "--")}',
         )
         self.bus.log(f'Synching {repo} to {tmp_repo_path}...')
         mon = ConfigurableMonitor(
