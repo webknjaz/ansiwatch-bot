@@ -53,7 +53,7 @@ class GitHubEventHandlerApp:
         return action_msg
 
     @cherrypy.expose('integration_installation')
-    def installation(self, action, installation, repositories, sender):
+    def installation(self, action, installation, sender, repositories=None):
         installation_id = installation['id']
 
         action_msg = ' '.join(map(str, [
