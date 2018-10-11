@@ -10,13 +10,18 @@ from ..utils import bus_log
 @cherrypy.tools.json_to_args()
 class GitHubEventHandlerApp:
     @cherrypy.expose
-    def check_run(self, action, check_run, requested_action):
+    def check_run(
+        self, action, check_run,
+        installation, repository,
+        sender,
+        requested_action=None,
+    ):
         check_run_conclusion = check_run['conclusion']
         check_run_name = check_run['name']
         check_suite_id = check_run['check_suite']['id']
         requested_action_identifier = (
             requested_action['identifier']
-        )
+        ) if requested_action else None
 
         action_msg = ' '.join(map(str, [
             'Processing check run action', action,
@@ -31,7 +36,11 @@ class GitHubEventHandlerApp:
         return action_msg
 
     @cherrypy.expose
-    def check_suite(self, action, check_suite):
+    def check_suite(
+        self, action, check_suite,
+        installation, repository,
+        sender,
+    ):
         check_suite_head_branch = check_suite['head_branch']
         check_suite_head_sha = check_suite['head_sha']
         check_suite_status = check_suite['status']
