@@ -69,7 +69,7 @@ class GitHubEventHandlerApp:
             'deleted': 'repo-wipe',
         }
         for repo in repositories:
-            cherrypy.engine.publish(action_map[action], repo=repo)
+            cherrypy.engine.publish(action_map[action], repo=repo['full_name'])
 
         return action_msg
 
@@ -89,10 +89,10 @@ class GitHubEventHandlerApp:
         bus_log(action_msg, logging.INFO)
 
         for repo in repositories_deleted:
-            cherrypy.engine.publish('repo-wipe', repo=repo)
+            cherrypy.engine.publish('repo-wipe', repo=repo['full_name'])
 
         for repo in repositories_added:
-            cherrypy.engine.publish('repo-sync', repo=repo)
+            cherrypy.engine.publish('repo-sync', repo=repo['full_name'])
 
         return action_msg
 
