@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 import cherrypy
 from cherrypy.process.plugins import Monitor, SimplePlugin
 
-from .workers import sync_repo
+from .workers import sync_repo, test_repo
 
 
 class ConfigurableMonitor(Monitor):
@@ -49,6 +49,7 @@ class RepoSyncPlugin(SimplePlugin):
         self.bus.log('Starting repo sync plugin')
         self.bus.subscribe('repo-sync', self.sync_repo)
         self.bus.subscribe('repo-wipe', self.wipe_repo)
+        self.bus.subscribe('repo-test-pr', self.test_pr)
 
     def stop(self):
         self.bus.log('Stopping repo sync plugin')
@@ -102,6 +103,11 @@ class RepoSyncPlugin(SimplePlugin):
     def _cleanup(self):
         for r in list(self.repo_monitors.keys()):
             self.wipe_repo(r)
+
+    def test_pr(self, repo, pr):
+        self.bus.log(f'Got asked to test {repo}, PR {pr}...')
+        local_repo_wd = self.repo_monitors[repo]
+        test_repo(repo, local_repo_wd, pr)
 
 
 def subscribe_all():

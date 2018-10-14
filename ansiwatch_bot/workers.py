@@ -28,3 +28,7 @@ def sync_repo(repo, path):
     subprocess.check_output(
         ('git', '-C', str(path), 'fetch', '--all')
     )
+
+
+def test_repo(repo_slug, local_repo, pr):
+    cherrypy.engine.log(f'Starting to test {pr} in repo {repo_slug}...')

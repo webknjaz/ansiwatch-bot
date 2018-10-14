@@ -119,3 +119,24 @@ class GitHubEventHandlerApp:
         bus_log(action_msg, logging.INFO)
         return action_msg
         # raise cherrypy.HTTPError(204, zen)
+
+    def pull_request(
+        self, action, number, pull_request,
+        installation, repository, sender,
+    ):
+        installation_id = installation['id']
+
+        action_msg = ' '.join(map(str, [
+            'Processing PR', number, 'action', action,
+            'with ID', installation_id,
+            'by', sender['login'],
+        ]))
+        bus_log(action_msg, logging.INFO)
+
+        cherrypy.engine.publish(
+            'repo-test-pr',
+            repo=repo['full_name'],
+            pr=number,
+        )
+
+        return action_msg
