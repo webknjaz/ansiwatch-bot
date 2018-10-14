@@ -136,7 +136,7 @@ class GitHubEventHandlerApp:
 
         cherrypy.engine.publish(
             'repo-test-pr',
-            repo=repo['full_name'],
+            repo=repository['full_name'],
             pr=number,
         )
 
