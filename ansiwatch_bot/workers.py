@@ -15,6 +15,7 @@ def get_git_separate_dir_args(path):
 
 def sync_repo(repo, path):
     git_args = get_git_separate_dir_args(path)
+    git_exec_cmd = 'git', *git_args
 
     cherrypy.engine.log(f'Starting to sync repo {repo}...')
     if not (path / '.git').exists():
@@ -24,18 +25,18 @@ def sync_repo(repo, path):
         )
         cherrypy.engine.log(f'Adding refs/pull/*/head to repo {repo} config...')
         subprocess.check_output(
-            ('git', *git_args, 'config', '--add', 'remote.origin.fetch',
+            (*git_exec_cmd, 'config', '--add', 'remote.origin.fetch',
              '+refs/pull/*/head:refs/pull/origin/*')
         )
         cherrypy.engine.log(f'Adding refs/pull/*/merge to repo {repo} config...')
         subprocess.check_output(
-            ('git', *git_args, 'config', '--add', 'remote.origin.fetch',
+            (*git_exec_cmd, 'config', '--add', 'remote.origin.fetch',
              '+refs/pull/*/merge:refs/pull/origin/*')
         )
 
     cherrypy.engine.log(f'Fetching repo {repo}...')
     subprocess.check_output(
-        ('git', *git_args, 'fetch', '--all')
+        (*git_exec_cmd, 'fetch', '--all')
     )
 
 
