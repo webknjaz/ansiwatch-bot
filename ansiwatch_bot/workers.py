@@ -31,7 +31,7 @@ def sync_repo(repo, path):
         cherrypy.engine.log(f'Adding refs/pull/*/merge to repo {repo} config...')
         subprocess.check_output(
             (*git_exec_cmd, 'config', '--add', 'remote.origin.fetch',
-             '+refs/pull/*/merge:refs/pull/origin/*')
+             '+refs/pull/*/merge:refs/pull-merge/origin/*')
         )
 
     cherrypy.engine.log(f'Fetching repo {repo}...')
