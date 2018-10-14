@@ -120,6 +120,7 @@ class GitHubEventHandlerApp:
         return action_msg
         # raise cherrypy.HTTPError(204, zen)
 
+    @cherrypy.expose
     def pull_request(
         self, action, number, pull_request,
         installation, repository, sender,
