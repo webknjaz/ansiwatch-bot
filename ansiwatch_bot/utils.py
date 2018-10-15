@@ -5,9 +5,18 @@ import subprocess
 from tempfile import TemporaryDirectory
 
 import cherrypy
+from cherrypy.process.wspbus import ChannelFailures
 
 
 bus_log = partial(cherrypy.engine.publish, 'log')
+
+
+def pub(channel, *args, **kwargs):
+    try:
+        return cherrypy.engine.publish(channel, *args, **kwargs).pop()
+    except ChannelFailures as cf:
+        # Unwrap exception, which happened in channel
+        raise cf.get_instances()[0] from cf
 
 
 @contextmanager
