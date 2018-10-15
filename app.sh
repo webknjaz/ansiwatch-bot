@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+git --version
+
 curl https://bootstrap.pypa.io/get-pip.py | python2 - --user
 python2 -m pip install virtualenv --user
 python2 -m virtualenv py2venv
