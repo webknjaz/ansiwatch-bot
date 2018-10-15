@@ -54,10 +54,22 @@ def test_repo(repo_slug, local_repo, pr):
         stdout=subprocess.PIPE,
     )
     with separate_git_worktree(local_repo, pr_branch) as tmp_repo:
-        git_diff_proc = subprocess.run(
+        ansible_review_proc = subprocess.run(
             (pathlib.Path.cwd() / 'py2venv/bin/ansible-review', ),
             stdin=git_diff_proc.stdout,
+            stdout=subprocess.PIPE,
             check=True,
             cwd=tmp_repo,
             shell=True,
         )
+    text_results = ansible_review_proc.stdout.decode().splitlines()
+    for l in text_results:
+        file_or_level, msg = l.split(': ')
+        if file_or_level == 'WARN':
+            cherrypy.engine.log(f'[ansible-review][WARNING]: {msg}')
+        else:
+            file_name, line_num = file_or_level.split(':')
+            line_num = int(line_num)
+            error_code, error_comment = msg.split('] ')
+            error_code = error_code[1:]
+            cherrypy.engine.log(f'[ansible-review][ERROR]: {error_code} | {error_comment} | file={file_name} line={line_num}')
