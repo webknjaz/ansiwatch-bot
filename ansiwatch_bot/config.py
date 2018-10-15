@@ -27,7 +27,13 @@ def get_root_config():
          }
 
 
+__version__ = 0, 0, 1
+
 SERVER_PORT = env('PORT', cast=int, default=8080)
+USER_AGENT = (
+    f'AnsiWatch-Bot/{".".join(map(str, __version__))}'
+    f' (+https://github.com/apps/ansiwatch)'
+)
 
 # Installation integration:
 APP_ID = env('GITHUB_APP_ID', cast=int)
