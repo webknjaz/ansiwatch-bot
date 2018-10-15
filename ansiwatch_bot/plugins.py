@@ -4,7 +4,9 @@ from tempfile import TemporaryDirectory
 
 import cherrypy
 from cherrypy.process.plugins import Monitor, SimplePlugin
+import github
 
+from .config import APP_ID, PRIVATE_KEY, USER_AGENT
 from .workers import sync_repo, test_repo
 
 
@@ -111,6 +113,58 @@ class RepoSyncPlugin(SimplePlugin):
         test_repo(repo, local_repo_wd, pr)
 
 
+class GithubAppInstallationsPlugin(SimplePlugin):
+
+    def __init__(self, bus, app_id, private_key, user_agent):
+        super().__init__(bus)
+
+        self._app_id = app_id
+        self._private_key = private_key
+        self._user_agent = user_agent
+
+        self.installations = {}
+        self.repo_to_installation = {}
+
+        self._gh_integration = github.GithubIntegration(
+            self._app_id,
+            self._private_key,
+        )
+
+    def start(self):
+        self.bus.log('Starting GitHub App Installations plugin')
+        self.bus.subscribe('gh-installation-add', self.add_installation)
+        self.bus.subscribe('gh-installation-rm', self.rm_installation)
+
+    def stop(self):
+        self.bus.log('Stopping GitHub App Installations plugin')
+        self.bus.unsubscribe('gh-installation-add', self.add_installation)
+        self.bus.unsubscribe('gh-installation-rm', self.rm_installation)
+
+    def add_installation(self, gh_installation, gh_repos):
+        install_id = gh_installation['id']
+
+        self.installations[install_id] = gh_installation
+        self.installation_clients[install_id] = github.Github(
+            self._gh_integration.get_access_token(install_id).token
+        )
+
+        for repo in gh_repos:
+            self.repo_to_installation[repo['full_name']] = install_id
+
+    def rm_installation(self, install_id):
+        for repo in self.installations[install_id]:
+            del self.repo_to_installation[repo['full_name']]
+
+        del self.installations[install_id]
+        del self.installation_clients[install_id]
+
+
 def subscribe_all():
     cherrypy.engine.repo_sync = RepoSyncPlugin(cherrypy.engine)
     cherrypy.engine.repo_sync.subscribe()
+
+    cherrypy.engine.gh_app_installations = GithubAppInstallationsPlugin(
+        cherrypy.engine, APP_ID,
+        PRIVATE_KEY, USER_AGENT,
+    )
+    cherrypy.engine.gh_app_installations.subscribe()
