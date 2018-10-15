@@ -41,7 +41,7 @@ def sync_repo(repo, path):
 
 
 def test_repo(repo_slug, local_repo, pr):
-    git_args = get_git_separate_dir_args(path)
+    git_args = get_git_separate_dir_args(local_repo)
     git_exec_cmd = 'git', *git_args
     cherrypy.engine.log(f'Starting to test {pr} in repo {repo_slug}...')
     git_diff_proc = subprocess.run(
