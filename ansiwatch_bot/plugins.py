@@ -66,19 +66,20 @@ class RepoSyncPlugin(SimplePlugin):
         tmp_dir = TemporaryDirectory(
             prefix=f'ansiwatch_bot--{repo.replace("/", "--")}--',
         )
+        tmp_repo_path = Path(tmp_dir.name) / 'repo'
         self.bus.log(f'Synching {repo} to {tmp_repo_path}...')
         mon = ConfigurableMonitor(
             self.bus, sync_repo,
             kwargs={
                 'repo': repo,
-                'path': Path(tmp_repo_path.name),
+                'path': tmp_repo_path,
             },
             frequency=20, name=f'{repo}-sync',
         )
         mon.subscribe()
         mon.start()
 
-        self.repo_monitors[repo] = tmp_repo_path, mon
+        self.repo_monitors[repo] = tmp_dir, tmp_repo_path, mon
         del mon
 
     def wipe_repo(self, repo):
@@ -88,15 +89,15 @@ class RepoSyncPlugin(SimplePlugin):
             return
 
         self.bus.log(f'Wiping {repo} out')
-        tmp_repo_path, mon = self.repo_monitors.pop(repo)
+        tmp_dir, _, mon = self.repo_monitors.pop(repo)
 
         mon.stop()
         mon.unsubscribe()
 
         del mon
 
-        tmp_repo_path.cleanup()
-        del tmp_repo_path
+        tmp_dir.cleanup()
+        del tmp_dir
 
         self.bus.log(f'{repo} has been cleaned up successfully')
 
@@ -106,7 +107,7 @@ class RepoSyncPlugin(SimplePlugin):
 
     def test_pr(self, repo, pr):
         self.bus.log(f'Got asked to test {repo}, PR {pr}...')
-        local_repo_wd = self.repo_monitors[repo]
+        local_repo_wd = self.repo_monitors[repo][1]
         test_repo(repo, local_repo_wd, pr)
 
 
