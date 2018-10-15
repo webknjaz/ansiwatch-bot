@@ -38,4 +38,4 @@ PRIVATE_KEY = env('GITHUB_PRIVATE_KEY', default=None)
 # OAuth 2:
 CLIENT_ID = env('GITHUB_OAUTH_CLIENT_ID')
 CLIENT_SECRET = env('GITHUB_OAUTH_CLIENT_SECRET')
-GH_AUTH_URL_TMPL = f'https://github.com/login/oauth/authorize?client_id={client_id}&redirect_uri=https%3A%2F%2F{{app_domain}}%2Flogin%2Foauth'
+GH_AUTH_URL_TMPL = f'https://github.com/login/oauth/authorize?client_id={CLIENT_ID}&redirect_uri=https%3A%2F%2F{{app_domain}}%2Flogin%2Foauth'
