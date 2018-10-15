@@ -74,6 +74,16 @@ class GitHubEventHandlerApp:
         bus_log(action_msg, logging.INFO)
 
         action_map = {
+            'created': 'gh-installation-add',
+            'deleted': 'gh-installation-rm',
+        }
+        cherrypy.engine.publish(
+            action_map[action],
+            gh_installation=installation,
+            gh_repos=repositories,
+        )
+
+        action_map = {
             'created': 'repo-sync',
             'deleted': 'repo-wipe',
         }
