@@ -1,3 +1,4 @@
+import pathlib
 import subprocess
 
 import cherrypy
@@ -49,7 +50,8 @@ def test_repo(repo_slug, local_repo, pr):
         stdout=subprocess.PIPE,
     )
     git_diff_proc = subprocess.run(
-        ('py2venv/bin/ansible-review', ),
+        (pathlib.Path.cwd() / 'py2venv/bin/ansible-review', ),
         stdin=git_diff_proc.stdout,
         check=True,
+        cwd=local_repo,
     )
