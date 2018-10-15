@@ -45,7 +45,7 @@ def test_repo(repo_slug, local_repo, pr):
     git_exec_cmd = 'git', *git_args
     cherrypy.engine.log(f'Starting to test {pr} in repo {repo_slug}...')
     git_diff_proc = subprocess.Popen(
-        (*git_exec_cmd, 'diff', f'...pull-merge/{pr}'),
+        (*git_exec_cmd, 'diff', f'...refs/pull-merge/origin/{pr}'),
         stdout=subprocess.PIPE,
     )
     git_diff_proc = subprocess.run(
