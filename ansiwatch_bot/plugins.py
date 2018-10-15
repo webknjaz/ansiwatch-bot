@@ -63,8 +63,8 @@ class RepoSyncPlugin(SimplePlugin):
             self.bus.log(f'{repo} is already being synched...')
             return
 
-        tmp_repo_path = TemporaryDirectory(
-            prefix=f'ansiwatch_bot--{repo.replace("/", "--")}',
+        tmp_dir = TemporaryDirectory(
+            prefix=f'ansiwatch_bot--{repo.replace("/", "--")}--',
         )
         self.bus.log(f'Synching {repo} to {tmp_repo_path}...')
         mon = ConfigurableMonitor(
