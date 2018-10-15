@@ -1,4 +1,5 @@
 ansible-review
+check-in
 CherryPy==18.0.0
 envparse
 pygithub[integrations]
