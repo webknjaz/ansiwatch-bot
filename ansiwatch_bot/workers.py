@@ -3,12 +3,15 @@ import subprocess
 
 import cherrypy
 
+from .utils import separate_git_worktree
+
 
 GITHUB_REPO_URL_TMPL = 'git://github.com/{slug}.git'
 
 
 def get_git_separate_dir_args(path):
     path_str = str(path)
+    # FIXME: replace with '-C' once Git supports it
     return f'--git-dir={path_str}/.git', f'--work-tree={path_str}/'
     return '-C', path_str  # This'd work in Git v1.8.5+
     # Post note: since Git v2.3.4+ it processes empty path arg correctly
@@ -45,13 +48,16 @@ def test_repo(repo_slug, local_repo, pr):
     git_args = get_git_separate_dir_args(local_repo)
     git_exec_cmd = 'git', *git_args
     cherrypy.engine.log(f'Starting to test {pr} in repo {repo_slug}...')
+    pr_branch = f'refs/pull-merge/origin/{pr}'
     git_diff_proc = subprocess.Popen(
-        (*git_exec_cmd, 'diff', f'...refs/pull-merge/origin/{pr}'),
+        (*git_exec_cmd, 'diff', f'...{pr_branch}'),
         stdout=subprocess.PIPE,
     )
-    git_diff_proc = subprocess.run(
-        (pathlib.Path.cwd() / 'py2venv/bin/ansible-review', ),
-        stdin=git_diff_proc.stdout,
-        check=True,
-        cwd=local_repo,
-    )
+    with separate_git_worktree(local_repo, pr_branch) as tmp_repo:
+        git_diff_proc = subprocess.run(
+            (pathlib.Path.cwd() / 'py2venv/bin/ansible-review', ),
+            stdin=git_diff_proc.stdout,
+            check=True,
+            cwd=tmp_repo,
+            shell=True,
+        )
