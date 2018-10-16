@@ -4,8 +4,6 @@ from warnings import catch_warnings
 import cherrypy
 from envparse import Env
 
-from .request_dispatcher import GithubEventDispatcher
-
 
 with catch_warnings(record=True):
     Env.read_envfile()
@@ -18,6 +16,7 @@ def configure_server():
 
 
 def get_root_config():
+    from .request_dispatcher import GithubEventDispatcher
     return {
             '/':
                 {
