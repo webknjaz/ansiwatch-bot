@@ -12,7 +12,10 @@ env = Env()
 
 
 def configure_server():
-    cherrypy.config.update({'server.socket_host': '0.0.0.0'})
+    cherrypy.config.update({
+        'server.socket_host': '0.0.0.0',
+        'server.socket_port': SERVER_PORT,
+    })
 
 
 def get_root_config():
