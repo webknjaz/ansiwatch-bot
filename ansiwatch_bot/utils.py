@@ -7,6 +7,8 @@ from tempfile import TemporaryDirectory
 import cherrypy
 from cherrypy.process.wspbus import ChannelFailures
 
+from .config import IS_IN_CONTAINER
+
 
 bus_log = partial(cherrypy.engine.publish, 'log')
 
@@ -25,7 +27,8 @@ def separate_git_worktree(orig_repo, git_branch):
         tmp_repo_path = Path(tmp_dir) / 'repo'
         git_diff_proc = subprocess.run(
             # FIXME: replace with 'git worktree' once Git v2.5+ is there
-            ('/usr/share/git/contrib/workdir/git-new-workdir',
+            ('bin/git-new-workdir' if IS_IN_CONTAINER
+             else '/usr/share/git/contrib/workdir/git-new-workdir',
              orig_repo, tmp_repo_path, git_branch),
         )
         yield tmp_repo_path

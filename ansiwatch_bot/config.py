@@ -31,6 +31,8 @@ def get_root_config():
 
 __version__ = 0, 0, 1
 
+# Self-awareness
+IS_IN_CONTAINER = env('APP_ROOT', default=None) == '/opt/app-root'
 SERVER_PORT = env('PORT', cast=int, default=8080)
 USER_AGENT = (
     f'AnsiWatch-Bot/{".".join(map(str, __version__))}'
