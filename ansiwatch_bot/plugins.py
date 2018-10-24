@@ -15,7 +15,7 @@ class GithubWrapper(GithubClient):
     def __init__(self, github_client, repo_slug=None, user_agent=None):
         self._gh_client = github_client
         self._repo_slug = repo_slug
-        self._check_runs_base_uri = f'/repos/{_repo_slug}/check-runs'
+        self._check_runs_base_uri = f'/repos/{repo_slug}/check-runs'
         self.user_agent = user_agent
 
 
