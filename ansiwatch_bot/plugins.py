@@ -2,12 +2,20 @@ from functools import partial
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from check_in.github_api import GithubClient
 import cherrypy
 from cherrypy.process.plugins import Monitor, SimplePlugin
 import github
 
 from .config import APP_ID, PRIVATE_KEY, USER_AGENT
 from .workers import sync_repo, test_repo
+
+
+class GithubWrapper(GithubClient):
+    def __init__(self, github_client, repo_slug=None, user_agent=None):
+        self._gh_client = github_client
+        self._repo_slug = repo_slug
+        self.user_agent = user_agent
 
 
 class ConfigurableMonitor(Monitor):
@@ -134,11 +142,15 @@ class GithubAppInstallationsPlugin(SimplePlugin):
         self.bus.log('Starting GitHub App Installations plugin')
         self.bus.subscribe('gh-installation-add', self.add_installation)
         self.bus.subscribe('gh-installation-rm', self.rm_installation)
+        self.bus.subscribe('gh-installation-post-check', self.post_check)
+        self.bus.subscribe('gh-installation-update-check', self.update_check)
 
     def stop(self):
         self.bus.log('Stopping GitHub App Installations plugin')
         self.bus.unsubscribe('gh-installation-add', self.add_installation)
         self.bus.unsubscribe('gh-installation-rm', self.rm_installation)
+        self.bus.unsubscribe('gh-installation-post-check', self.post_check)
+        self.bus.unsubscribe('gh-installation-update-check', self.update_check)
 
     def add_installation(self, gh_installation, gh_repos):
         install_id = gh_installation['id']
@@ -157,6 +169,42 @@ class GithubAppInstallationsPlugin(SimplePlugin):
 
         del self.installations[install_id]
         del self.installation_clients[install_id]
+
+    def post_check(self, repo_slug, head_branch, head_sha, req=None):
+        if req is None:
+            req = {}
+
+        install_id = self.repo_to_installation[repo_slug]
+        raw_gh_client = self.installation_clients[install_id]
+        gh_client = GithubWrapper(
+            github_client=raw_gh_client,
+            repo_slug=repo_slug,
+            user_agent=self._user_agent,
+        )
+
+        api_response = gh_client.post_check(head_branch, head_sha, req)
+
+        self.bus.log(f"[post] Check Suite ID: {api_response['check_suite']['id']}")
+        self.bus.log(f"[post] Check Run ID: {api_response['id']}")
+
+        return api_response['id']
+
+    def update_check(self, repo_slug, check_run_id, req=None):
+        if req is None:
+            req = {}
+
+        install_id = self.repo_to_installation[repo_slug]
+        raw_gh_client = self.installation_clients[install_id]
+        gh_client = GithubWrapper(
+            github_client=raw_gh_client,
+            repo_slug=repo_slug,
+            user_agent=self._user_agent,
+        )
+
+        api_response = gh_client.update_check(check_run_id, req)
+
+        self.bus.log(f"[update] Check Suite ID: {api_response['check_suite']['id']}")
+        self.bus.log(f"[update] Check Run ID: {api_response['id']}")
 
 
 def subscribe_all():

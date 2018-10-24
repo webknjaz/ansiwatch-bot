@@ -1,9 +1,10 @@
 import pathlib
 import subprocess
+import textwrap
 
 import cherrypy
 
-from .utils import separate_git_worktree
+from .utils import pub, separate_git_worktree
 
 
 GITHUB_REPO_URL_TMPL = 'git://github.com/{slug}.git'
@@ -48,12 +49,36 @@ def test_repo(repo_slug, local_repo, pr):
     git_args = get_git_separate_dir_args(local_repo)
     git_exec_cmd = 'git', *git_args
     cherrypy.engine.log(f'Starting to test {pr} in repo {repo_slug}...')
+
     pr_branch = f'refs/pull-merge/origin/{pr}'
+    # TODO: maybe just HEAD?
+    head_sha = pathlib.Path(f'.git/refs/heads/{pr_branch}').read_text().strip()
+    base_req = {
+        'name': 'ansible-review',
+    }
+    check_id = pub(
+        'gh-installation-post-check', repo_slug=repo,
+        head_branch=pr_branch, head_sha=head_sha,
+        req={'status': 'queued', **base_req},
+        #req={'output': {'title': '', 'summary': ''}, **base_req},
+    )
+
     git_diff_proc = subprocess.Popen(
         (*git_exec_cmd, 'diff', f'...{pr_branch}'),
         stdout=subprocess.PIPE,
     )
+    pub(
+        'gh-installation-update-check',
+        repo_slug=repo, check_run_id=check_id,
+        req={'status': 'in_progress', **base_req},
+    )
+    # TODO: maybe s/pr_branch/head_sha/?
     with separate_git_worktree(local_repo, pr_branch) as tmp_repo:
+        pub(
+            'gh-installation-update-check',
+            repo_slug=repo, check_run_id=check_id,
+            req={'status': 'in_progress', **base_req},
+        )
         ansible_review_proc = subprocess.run(
             (pathlib.Path.cwd() / 'py2venv/bin/ansible-review', ),
             stdin=git_diff_proc.stdout,
@@ -62,14 +87,56 @@ def test_repo(repo_slug, local_repo, pr):
             cwd=tmp_repo,
             shell=True,
         )
+    pub(
+        'gh-installation-update-check',
+        repo_slug=repo, check_run_id=check_id,
+        req={
+            'status': 'completed',
+            'conclusion': 'success' if returncode == 0 else 'failure',
+            **base_req,
+        },
+    )
+    annotations = []
+    warnings = []
     text_results = ansible_review_proc.stdout.decode().splitlines()
     for l in text_results:
         file_or_level, msg = l.split(': ')
         if file_or_level == 'WARN':
             cherrypy.engine.log(f'[ansible-review][WARNING]: {msg}')
+            warnings.append(msg)
         else:
             file_name, line_num = file_or_level.split(':')
             line_num = int(line_num)
             error_code, error_comment = msg.split('] ')
             error_code = error_code[1:]
             cherrypy.engine.log(f'[ansible-review][ERROR]: {error_code} | {error_comment} | file={file_name} line={line_num}')
+
+            annotations.append({
+                'path': file_name,
+                'start_line': line_num,
+                'end_line': line_num,
+                'annotation_level': 'failure',
+                'message': f'{error_code}: {error_comment}',
+                'title': 'ansible-review',
+                'raw_details': l,
+            })
+
+    summary = ''
+    if warnings:
+        warnings_md = '\n'.join(map(lambda w: '* ' + w, warnings))
+        summary = textwrap.dedent(f"""
+        Common warnings:
+        {warnings_md}
+        """)
+    pub(
+        'gh-installation-update-check',
+        repo_slug=repo, check_run_id=check_id,
+        req={
+            'output': {
+                'title': 'Standards compliance',
+                'summary': summary,
+                'annotations': annotations,
+            },
+            **base_req,
+        },
+    )
