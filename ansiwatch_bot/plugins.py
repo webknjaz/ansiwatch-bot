@@ -166,6 +166,10 @@ class GithubAppInstallationsPlugin(SimplePlugin):
             self.repo_to_installation[repo['full_name']] = install_id
 
     def rm_installation(self, install_id):
+        if install_id not in self.installations:
+            self.bus.log(f'We do not have {install_id} saved...')
+            return
+
         for repo in self.installations[install_id]:
             del self.repo_to_installation[repo['full_name']]
 
