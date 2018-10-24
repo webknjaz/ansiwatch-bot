@@ -51,7 +51,8 @@ def test_repo(repo_slug, local_repo, pr):
     git_exec_cmd = 'git', *git_args
     cherrypy.engine.log(f'Starting to test {pr} in repo {repo_slug}...')
 
-    pr_branch = f'refs/pull-merge/origin/{pr}'
+    pr_branch = f'refs/pull/origin/{pr}'
+    pr_branch_merge = f'refs/pull-merge/origin/{pr}'
     # TODO: maybe just HEAD?
     head_sha = subprocess.check_output(
         (*git_exec_cmd, 'rev-parse', pr_branch)
