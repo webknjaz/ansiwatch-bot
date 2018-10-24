@@ -75,7 +75,7 @@ class GitHubEventHandlerApp:
 
         if action_map == 'created':
             cherrypy.engine.publish(
-                'gh-installation-add',,
+                'gh-installation-add',
                 gh_installation=installation,
                 gh_repos=repositories,
             )
