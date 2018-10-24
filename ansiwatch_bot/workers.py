@@ -1,3 +1,4 @@
+import datetime
 import pathlib
 import subprocess
 import textwrap
@@ -97,6 +98,8 @@ def test_repo(repo_slug, local_repo, pr):
             'conclusion':
                 'success' if ansible_review_proc.returncode == 0
                 else 'failure',
+            'completed_at':
+                datetime.datetime.now().astimezone().isoformat(),
             **base_req,
         },
     )
