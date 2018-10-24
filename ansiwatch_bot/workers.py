@@ -59,7 +59,7 @@ def test_repo(repo_slug, local_repo, pr):
         'name': 'ansible-review',
     }
     check_id = pub(
-        'gh-installation-post-check', repo_slug=repo,
+        'gh-installation-post-check', repo_slug=repo_slug,
         head_branch=pr_branch, head_sha=head_sha,
         req={'status': 'queued', **base_req},
         #req={'output': {'title': '', 'summary': ''}, **base_req},
@@ -71,14 +71,14 @@ def test_repo(repo_slug, local_repo, pr):
     )
     pub(
         'gh-installation-update-check',
-        repo_slug=repo, check_run_id=check_id,
+        repo_slug=repo_slug, check_run_id=check_id,
         req={'status': 'in_progress', **base_req},
     )
     # TODO: maybe s/pr_branch/head_sha/?
     with separate_git_worktree(local_repo, pr_branch) as tmp_repo:
         pub(
             'gh-installation-update-check',
-            repo_slug=repo, check_run_id=check_id,
+            repo_slug=repo_slug, check_run_id=check_id,
             req={'status': 'in_progress', **base_req},
         )
         ansible_review_proc = subprocess.run(
@@ -91,7 +91,7 @@ def test_repo(repo_slug, local_repo, pr):
         )
     pub(
         'gh-installation-update-check',
-        repo_slug=repo, check_run_id=check_id,
+        repo_slug=repo_slug, check_run_id=check_id,
         req={
             'status': 'completed',
             'conclusion': 'success' if returncode == 0 else 'failure',
@@ -132,7 +132,7 @@ def test_repo(repo_slug, local_repo, pr):
         """)
     pub(
         'gh-installation-update-check',
-        repo_slug=repo, check_run_id=check_id,
+        repo_slug=repo_slug, check_run_id=check_id,
         req={
             'output': {
                 'title': 'Standards compliance',
