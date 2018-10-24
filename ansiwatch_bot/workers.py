@@ -52,7 +52,9 @@ def test_repo(repo_slug, local_repo, pr):
 
     pr_branch = f'refs/pull-merge/origin/{pr}'
     # TODO: maybe just HEAD?
-    head_sha = pathlib.Path(f'.git/refs/heads/{pr_branch}').read_text().strip()
+    head_sha = subprocess.check_output(
+        (*git_exec_cmd, 'rev-parse', pr_branch)
+    ).decode().strip()
     base_req = {
         'name': 'ansible-review',
     }
