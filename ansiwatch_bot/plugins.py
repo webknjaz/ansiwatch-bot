@@ -131,6 +131,7 @@ class GithubAppInstallationsPlugin(SimplePlugin):
         self._user_agent = user_agent
 
         self.installations = {}
+        self.installation_clients = {}
         self.repo_to_installation = {}
 
         self._gh_integration = github.GithubIntegration(
