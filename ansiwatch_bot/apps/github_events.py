@@ -83,7 +83,7 @@ class GitHubEventHandlerApp:
         if action == 'deleted':
             cherrypy.engine.publish(
                 'gh-installation-rm',
-                gh_installation=installation,
+                install_id=installation_id,
             )
 
         action_map = {
