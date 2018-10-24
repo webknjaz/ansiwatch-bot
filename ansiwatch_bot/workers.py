@@ -94,7 +94,9 @@ def test_repo(repo_slug, local_repo, pr):
         repo_slug=repo_slug, check_run_id=check_id,
         req={
             'status': 'completed',
-            'conclusion': 'success' if returncode == 0 else 'failure',
+            'conclusion':
+                'success' if ansible_review_proc.returncode == 0
+                else 'failure',
             **base_req,
         },
     )
