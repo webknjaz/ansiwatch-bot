@@ -73,14 +73,14 @@ class GitHubEventHandlerApp:
         ]))
         bus_log(action_msg, logging.INFO)
 
-        if action_map == 'created':
+        if action == 'created':
             cherrypy.engine.publish(
                 'gh-installation-add',
                 gh_installation=installation,
                 gh_repos=repositories,
             )
 
-        if action_map == 'deleted':
+        if action == 'deleted':
             cherrypy.engine.publish(
                 'gh-installation-rm',
                 gh_installation=installation,
