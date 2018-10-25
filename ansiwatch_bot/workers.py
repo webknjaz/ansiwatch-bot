@@ -1,7 +1,7 @@
 import datetime
+import itertools
 import pathlib
 import subprocess
-import textwrap
 
 import cherrypy
 
@@ -131,11 +131,12 @@ def test_repo(repo_slug, local_repo, pr):
 
     summary = ''
     if warnings:
-        warnings_md = '\n'.join(map(lambda w: '* ' + w, warnings))
-        summary = textwrap.dedent(f"""
-        Common warnings:
-        {warnings_md}
-        """).strip()
+        summary = '\n'.join(
+            itertools.chain(
+                ('Common warnings:', ),
+                map(lambda w: '* ' + w, warnings),
+            )
+        )
     pub(
         'gh-installation-update-check',
         repo_slug=repo_slug, check_run_id=check_id,
