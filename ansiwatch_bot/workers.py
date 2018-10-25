@@ -135,7 +135,7 @@ def test_repo(repo_slug, local_repo, pr):
         summary = textwrap.dedent(f"""
         Common warnings:
         {warnings_md}
-        """)
+        """).strip()
     pub(
         'gh-installation-update-check',
         repo_slug=repo_slug, check_run_id=check_id,
