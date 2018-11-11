@@ -3,6 +3,25 @@ ansiwatch-bot
 
 Ansible content linter bot
 
+What is this?
+=============
+
+Currently it's my research about Bots using GitHub Apps integrations.
+Runs ``ansible-review`` on ``pull_request`` event, posts result via
+Checks API. One-click installable. Deployed privately for now.
+Demo of the check posted:
+https://github.com/webknjaz/ansible-gentoo-laptop/pull/4/checks?check_run_id=26277133
+
+What is it done of?
+===================
+
+* `ansible-review <https://pypi.org/p/ansible-review>`_ — linter itself
+* `check-in <https://pypi.org/p/check-in>`_ — Checks API bindings
+* `CherryPy <https://pypi.org/p/CherryPy>`_ — framework implementing
+  GitHub webhook event routing, GitHub integration and repos sync via
+  the built-in pubsub bus
+* `OpenShift <https://www.openshift.com/>`_ — back-end platform
+
 Creating an openshift app
 =========================
 
