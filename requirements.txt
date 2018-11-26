@@ -1,4 +1,4 @@
-ansible-review
+ansible-review>=0.13.9
 check-in
 CherryPy==18.0.0
 envparse

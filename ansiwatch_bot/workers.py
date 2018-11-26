@@ -1,6 +1,5 @@
 import datetime
 import itertools
-import pathlib
 import subprocess
 
 import cherrypy
@@ -84,7 +83,7 @@ def test_repo(repo_slug, local_repo, pr):
             req={'status': 'in_progress', **base_req},
         )
         ansible_review_proc = subprocess.run(
-            (pathlib.Path.cwd() / 'py2venv/bin/ansible-review', ),
+            ('ansible-review', ),
             stdin=git_diff_proc.stdout,
             stdout=subprocess.PIPE,
             check=True,
