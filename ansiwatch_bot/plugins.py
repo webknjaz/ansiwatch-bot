@@ -144,7 +144,7 @@ class GithubAppInstallationsPlugin(SimplePlugin):
     def get_all_installations(self):
         accept_header = 'application/vnd.github.machine-man-preview+json'
         jwt = self._gh_integration.create_jwt()
-        response = requests.post(
+        response = requests.get(
             'https://api.github.com/app/installations',
             headers={
                 'Authorization': f'Bearer {jwt}',
@@ -153,11 +153,10 @@ class GithubAppInstallationsPlugin(SimplePlugin):
             },
         )
         for install in response.json():
-            self.bus.log(f'Got {install!r}')
             install_token = (
                 self._gh_integration.get_access_token(install['id']).token
             )
-            inst_resp = requests.post(
+            inst_resp = requests.get(
                 'https://api.github.com/installation/repositories',
                 headers={
                     'Authorization': f'token {install_token}',
@@ -165,7 +164,7 @@ class GithubAppInstallationsPlugin(SimplePlugin):
                     'User-Agent': self._user_agent,
                 },
             )
-            gh_repos = inst_resp['repositories']
+            gh_repos = inst_resp.json()['repositories']
             self.add_installation(install, gh_repos)
 
     def start(self):
@@ -193,8 +192,15 @@ class GithubAppInstallationsPlugin(SimplePlugin):
             self._gh_integration.get_access_token(install_id).token
         )
 
+        self.bus.log(f'Added GitHub App Installation ID {install_id}')
+
         for repo in gh_repos:
             self.repo_to_installation[repo['full_name']] = install_id
+
+            self.bus.log(
+                f'Added GitHub App Installation ID {install_id} '
+                f'can access {repo["full_name"]}'
+            )
 
     def rm_installation(self, install_id):
         if install_id not in self.installations:
