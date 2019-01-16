@@ -198,8 +198,8 @@ class GithubAppInstallationsPlugin(SimplePlugin):
             self.repo_to_installation[repo['full_name']] = install_id
 
             self.bus.log(
-                f'Added GitHub App Installation ID {install_id} '
-                f'can access {repo["full_name"]}'
+                f'GitHub App Installation [ID {install_id}] '
+                f'can access repository [slug {repo["full_name"]}]'
             )
 
     def rm_installation(self, install_id):
