@@ -62,6 +62,7 @@ class RepoSyncPlugin(SimplePlugin):
         self.bus.subscribe('repo-sync', self.sync_repo)
         self.bus.subscribe('repo-wipe', self.wipe_repo)
         self.bus.subscribe('repo-test-pr', self.test_pr)
+    start.priority = 44
 
     def stop(self):
         self.bus.log('Stopping repo sync plugin')
