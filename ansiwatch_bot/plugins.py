@@ -6,6 +6,7 @@ from check_in.github_api import GithubClient
 import cherrypy
 from cherrypy.process.plugins import Monitor, SimplePlugin
 import github
+import requests
 
 from .config import APP_ID, PRIVATE_KEY, USER_AGENT
 from .workers import sync_repo, test_repo
@@ -140,8 +141,37 @@ class GithubAppInstallationsPlugin(SimplePlugin):
             self._private_key,
         )
 
+    def get_all_installations(self):
+        accept_header = 'application/vnd.github.machine-man-preview+json'
+        jwt = self._gh_integration.create_jwt()
+        response = requests.post(
+            'https://api.github.com/app/installations',
+            headers={
+                'Authorization': f'Bearer {jwt}',
+                'Accept': accept_header,
+                'User-Agent': self._user_agent,
+            },
+        )
+        for install in response.json():
+            install_token = (
+                self._gh_integration.get_access_token(install['id']).token
+            )
+            inst_resp = requests.post(
+                'https://api.github.com/installation/repositories',
+                headers={
+                    'Authorization': f'Bearer {install_token}',
+                    'Accept': accept_header,
+                    'User-Agent': self._user_agent,
+                },
+            )
+            gh_repos = inst_resp['repositories']
+            self.add_installation(install, gh_repos)
+
     def start(self):
         self.bus.log('Starting GitHub App Installations plugin')
+        self.bus.log('Retrieving all GitHub App Installations')
+        self.get_all_installations()
+        self.bus.log('Subscribing GitHub App Installation actions')
         self.bus.subscribe('gh-installation-add', self.add_installation)
         self.bus.subscribe('gh-installation-rm', self.rm_installation)
         self.bus.subscribe('gh-installation-post-check', self.post_check)
