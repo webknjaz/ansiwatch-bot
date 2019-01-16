@@ -160,7 +160,7 @@ class GithubAppInstallationsPlugin(SimplePlugin):
             inst_resp = requests.post(
                 'https://api.github.com/installation/repositories',
                 headers={
-                    'Authorization': f'Bearer {install_token}',
+                    'Authorization': f'token {install_token}',
                     'Accept': accept_header,
                     'User-Agent': self._user_agent,
                 },
