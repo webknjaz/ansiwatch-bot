@@ -203,6 +203,8 @@ class GithubAppInstallationsPlugin(SimplePlugin):
                 f'can access repository [slug {repo["full_name"]}]'
             )
 
+            self.bus.publish('repo-sync', repo=repo['full_name'])
+
     def rm_installation(self, install_id):
         if install_id not in self.installations:
             self.bus.log(f'We do not have {install_id} saved...')
@@ -210,6 +212,8 @@ class GithubAppInstallationsPlugin(SimplePlugin):
 
         for repo in self.installations[install_id]:
             del self.repo_to_installation[repo['full_name']]
+
+            self.bus.publish('repo-wipe', repo=repo['full_name'])
 
         del self.installations[install_id]
         del self.installation_clients[install_id]
