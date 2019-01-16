@@ -153,6 +153,7 @@ class GithubAppInstallationsPlugin(SimplePlugin):
             },
         )
         for install in response.json():
+            self.bus.log(f'Got {install!r}')
             install_token = (
                 self._gh_integration.get_access_token(install['id']).token
             )
