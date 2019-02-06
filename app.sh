@@ -9,5 +9,13 @@ git --version
     chmod +x bin/git-new-workdir
 } &
 
-echo "Port: $PORT"
+{
+    >&2 echo Upgrading git asynchronously...
+    wget -O - https://setup.ius.io | bash -
+    yum install -y git2u
+} &
+
+>&2 echo "Port: $PORT"
+>&2 echo Waiting for pre-requisites install to complete...
+wait
 exec python -m "$APP_MODULE"
