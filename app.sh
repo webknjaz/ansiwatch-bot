@@ -11,8 +11,8 @@ git --version
 
 {
     >&2 echo Upgrading git asynchronously...
-    wget -O - https://setup.ius.io | bash -
-    yum install -y git2u
+    wget -O - https://setup.ius.io | sudo bash -
+    sudo yum install -y git2u
 } &
 
 >&2 echo "Port: $PORT"
