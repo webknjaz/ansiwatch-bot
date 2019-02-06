@@ -29,6 +29,8 @@ Creating an openshift app
 
     oc new-project ansiwatch-bot
     oc new-app --param-file=.env openshift.yaml
+    # or
+    cat openshift.yaml | oc process -f - --param-file=.env -o yaml | oc apply -f -
 
 Triggering build
 ================
