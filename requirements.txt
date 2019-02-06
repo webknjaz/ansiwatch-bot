@@ -2,5 +2,5 @@ ansible-review>=0.13.9
 check-in
 CherryPy==18.0.0
 envparse
-pygithub[integrations]
+pygithub[integrations]==1.43.2
 requests==2.19.1
