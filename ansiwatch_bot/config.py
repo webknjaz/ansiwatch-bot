@@ -41,7 +41,6 @@ USER_AGENT = (
 
 # Installation integration:
 APP_ID = env('GITHUB_APP_ID', cast=int)
-INSTALL_ID = env('GITHUB_INSTALL_ID', cast=int, default=None)
 PRIVATE_KEY_PATH = env('GITHUB_PRIVATE_KEY_PATH', default=None)
 PRIVATE_KEY = env('GITHUB_PRIVATE_KEY', default=None)
 
