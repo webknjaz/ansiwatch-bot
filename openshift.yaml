@@ -135,8 +135,6 @@ objects:
             value: ${APP_MODULE}
           - name: GITHUB_APP_ID
             value: ${GITHUB_APP_ID}
-          - name: GITHUB_INSTALL_ID
-            value: ${GITHUB_INSTALL_ID}
           - name: GITHUB_PRIVATE_KEY
             valueFrom:
               secretKeyRef:
@@ -409,13 +407,6 @@ parameters:
   displayName: App ID copied from GitHub App settings page
   name: GITHUB_APP_ID
   required: true
-- description: >
-    The Installation ID identifying GitHub App installed in user or
-    organization scope
-  displayName: >
-    Installation ID identifying GitHub App installed in user or
-    organization scope
-  name: GITHUB_INSTALL_ID
 - description: The private key downloaded from GitHub App settings page
   displayName: Private key downloaded from GitHub App settings page
   name: GITHUB_PRIVATE_KEY
