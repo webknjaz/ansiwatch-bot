@@ -154,8 +154,9 @@ class GithubAppInstallationsPlugin(SimplePlugin):
             },
         )
         for install in response.json():
+            install_id = install['id'].encode()  # for PyGitHub
             install_token = (
-                self._gh_integration.get_access_token(install['id']).token
+                self._gh_integration.get_access_token(install_id).token
             )
             inst_resp = requests.get(
                 'https://api.github.com/installation/repositories',
