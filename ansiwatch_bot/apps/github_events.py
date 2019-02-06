@@ -137,6 +137,7 @@ class GitHubEventHandlerApp:
     def pull_request(
         self, action, number, pull_request,
         installation, repository, sender,
+        changes=None,
     ):
         installation_id = installation['id']
 
