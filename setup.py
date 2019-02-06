@@ -2,4 +2,4 @@
 
 import subprocess
 
-subprocess.check_output(('yum', 'upgrade', 'git'))
+subprocess.check_output(('su', '-c', 'yum upgrade git'))
